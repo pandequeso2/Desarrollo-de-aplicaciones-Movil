@@ -1,0 +1,15 @@
+fun conversion(entrada:String):Int{
+    return try{
+        entrada.toInt()
+    }catch (e: NumberFormatException){
+        println("Error, debes ingresar un numero valido...")
+        0
+    }
+}
+
+fun main() {
+    val texto="1"
+    val num1=conversion(texto)
+    println(num1)
+    
+}
