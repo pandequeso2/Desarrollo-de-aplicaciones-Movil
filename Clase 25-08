@@ -1,0 +1,59 @@
+interface Informable {
+    fun informar(): String
+}
+
+open class Persona(val nombre: String, val rut: String, val fecha_Nac: String, val edad: Int) : Informable {
+    override fun informar() = "Persona: $nombre"
+    fun mostrarInfo() = "Nombre: $nombre | Rut: $rut | Fecha Nacimiento: $fecha_Nac | Edad: $edad"
+}
+
+class Empleado(val cargo: String, val sueldo:Double ,nombre: String,rut: String,fecha_Nac: String,edad: Int) : Persona(nombre, rut, fecha_Nac, edad) {
+    override fun informar() = "Empleado: $nombre| cargo: $cargo| Sueldo: $sueldo| Bonificación: ${calculoBono()}"
+    fun calculoBono():Double{
+        val factor = when{
+            cargo.contains("Jefe",ignoreCase=true) -> 0.20
+            cargo.contains("Senior",ignoreCase=true) -> 0.15
+            else -> 0.10
+        }//fin del when
+        return factor*sueldo
+    }//fin de la funcion
+}//Fin de la clase
+
+fun main() {
+    val persona1 = Persona(
+    	nombre="ana",
+        rut="1-9",
+        fecha_Nac="2000-08-06",
+        edad=20
+    )
+    val empleado1 = Empleado(
+        cargo = "senior",
+        sueldo = 1_000_000.0,
+        nombre = "Pepe",
+        rut = "1-8",
+        fecha_Nac = "01-01-1965",
+        edad = 70
+    )
+    val empleado2 = Empleado(
+        cargo = "Jefe",
+        sueldo = 1_400_000.0,
+        nombre = "Carla",
+        rut = "1-K",
+        fecha_Nac = "01-01-1980",
+        edad = 45
+    )
+    println(persona1.mostrarInfo())
+    println(empleado1.mostrarInfo())
+    println(empleado2.mostrarInfo())
+    //Acceder a un metodo especifico:
+    println("Bonificación de ${empleado1.nombre}: ${empleado1.calculoBono()}")
+    
+    //Concepto de polimorfismo:
+    
+    var Lista:List<Informable> = listOf(persona1,empleado1,empleado2)
+    for (obj in Lista){
+        println(obj.informar())
+    }
+    
+    
+}// final de main
