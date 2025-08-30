@@ -1,0 +1,40 @@
+import kotlinx.coroutines.*
+
+//Crear Data class de perfil de usuario
+data class PerfilUsuario(val nombreUsuario:String,val email:String)
+
+//Crear la sealed class con 2 resultados posibles
+sealed class ResultadoLogin
+//crear exito y error que seran las unicas 2 opciónes, heredan perfilUsuario
+data class Exito(val perfil: PerfilUsuario):ResultadoLogin()
+data class Error(val mensaje:String):ResultadoLogin()
+
+//Se crea el objeto:
+object Autenticando: ResultadoLogin()
+
+//Crear Funcion de suspencion:
+suspend fun AutenticarUsuario(usuario:String, contraseña:String):ResultadoLogin{
+    delay(2000L)
+    return when {
+        usuario == "admin" && contraseña == "1234" -> {
+            val perfil = PerfilUsuario(
+                nombreUsuario = "Administrador", 
+                email = "admin@empresa.com"
+            )
+            Exito(perfil) 
+        }
+        else -> { 
+            Error("Error, Credenciales Incorrectas.") 
+        }
+    }
+}
+
+fun main() = runBlocking {
+    val resultado = AutenticarUsuario("usuario", "0000")
+    
+    when (resultado) {
+        is Exito -> println("Bienvenido: ${resultado.perfil.nombreUsuario} | Email: ${resultado.perfil.email}")
+        is Error -> println("Error verifique sus credenciales. ")
+        Autenticando -> println("Autenticando")
+    }
+}
