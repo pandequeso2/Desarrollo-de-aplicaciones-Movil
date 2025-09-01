@@ -1,0 +1,57 @@
+implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1") <-- Dependencias para IntellIJ
+
+package org.example
+
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+
+data class PerfilUsuario(val nombreUsuario: String, val email: String)
+
+// Sealed class con 3 posibles resultados
+sealed class ResultadoLogin {
+    data class Exito(val perfil: PerfilUsuario) : ResultadoLogin()
+    data class Error(val mensaje: String) : ResultadoLogin()
+    object Autenticando : ResultadoLogin()
+}
+
+suspend fun autenticadorUsuario(usuario: String, contraseña: String): ResultadoLogin {
+    delay(2000L)
+
+    return if (usuario == "admin" && contraseña == "1234") {
+        ResultadoLogin.Exito(
+            PerfilUsuario(nombreUsuario = "Admin", email = "admin@admin.cl")
+        )
+    } else {
+        ResultadoLogin.Error("Error, no es usuario admin y la contraseña 1234")
+    }
+}
+
+fun main() = runBlocking{
+    val resultado1 = autenticadorUsuario("admin","1234")
+    val resultado2 = autenticadorUsuario("No adnim","5678")
+
+
+    fun manejarRes(resultado: ResultadoLogin){
+        when (resultado){
+            is ResultadoLogin.Exito -> {
+                resultado.perfil.let{perfilUsuario ->
+                    println("autenticacion exitosa")
+                    println("Nombre: ${perfilUsuario.nombreUsuario}")
+                    println("Email: ${perfilUsuario.email}")
+                }
+            }
+            is ResultadoLogin.Error -> {
+                println("Error ${resultado.mensaje}")
+            }
+
+            ResultadoLogin.Autenticando ->{
+                println("Autenticando")
+            }
+        }
+
+    }
+    manejarRes(resultado1)
+    println("-----------------")
+    manejarRes(resultado2)
+
+}
