@@ -1,0 +1,90 @@
+import kotlinx.coroutines.*
+//Repaso antes de Prueba Formativa: Con ejemplo de Pizza
+open class Pizza(val id:Int, val Nombre:String,val precio:Int, val Cantidad:Int){
+    open fun mostrarInfo(){
+        println("----datos pizza----")
+        println("ID: $id")
+    }
+}
+//Clases, Herencias y Clases
+class PizzaBasica(id:Int, Nombre:String, precio:Int, Cantidad:Int):Pizza(id, Nombre, precio, Cantidad){
+    override fun mostrarInfo(){
+        println("----Datos pizza Basica----")
+        println("ID: $id| Nombre: $Nombre| Precio: $$precio| Cantidad: $Cantidad")
+    }
+}
+	
+class PizzaEspecial(id:Int, Nombre:String, precio:Int, Cantidad:Int, val Descuento:Int):Pizza(id, Nombre, precio, Cantidad){
+    override fun mostrarInfo(){
+        println("----Datos pizza Especial----") // Cambié el título para que sea más claro
+        println("ID: $id| Nombre: $Nombre| Precio: $$precio| Cantidad: $Cantidad| Descuento: %$Descuento")
+    }
+}
+    
+    
+    
+ //Asincronia: 
+data class Persona(val id:Int, val Nombre:String){}
+//Jerarquia:
+
+
+// Asincronia:
+
+
+// Jerarquia:
+sealed class resultadoLogin() {
+    data class Exito(val perfil: Persona) : resultadoLogin()
+    data class Error(val mensaje: String) : resultadoLogin()
+    object Validando : resultadoLogin()
+}
+
+// Funcion Acincrona
+suspend fun ValidarCredenciales(id: Int, nombre: String): resultadoLogin {
+    println("validando")
+    delay(2000L) // Simula una operacion asincrona
+    return if (nombre == "admin") {
+        println("Exito!!!")
+        val perfil = Persona(id = 100, Nombre = "administrador")
+        println("Nombre: ${perfil.Nombre}, ID: ${perfil.id}")
+        resultadoLogin.Exito(perfil)
+    } else {
+        println("Error: credenciales invalidas")
+        resultadoLogin.Error(mensaje = "Credenciales invalidas")
+        resultadoLogin.Validando
+    }
+}
+
+
+fun main() =runBlocking {
+    //Instanciar:
+   val ListaPizzas=listOf(
+   		PizzaBasica(1,"Pepperoni", 5500, 3),
+    	PizzaEspecial(2,"Hawaiiana",7000,3,1000),
+    	PizzaBasica(3,"Napolitana", 6500, 2),
+      	PizzaEspecial(4,"Todas las carnes", 8000,2,1500)
+   )
+  println("=== Informacion de las pizzas: ===")
+  ListaPizzas.forEach{it.mostrarInfo()}
+  println("=== La cantidad de Pizas Vendidas: ===")
+  val cantVentas = ListaPizzas.sumOf{it.Cantidad}
+  println("La Cantidad de Pizzas es: $cantVentas")
+  //Usar funcion validar credenciales
+  val resultado=ValidarCredenciales(1,"admin")
+  manejarResultado(resultado)
+  
+  //Funcion para manejar el resultado:
+  fun manejarResultado(resultado:resultadoLogin){
+      return when(resultado){
+          is resultadoLogin.Exito-> {
+              //resultado.perfil.let <-- Falto Terminarlo...
+              println("Exito ")
+              println("Nombre: ${perfil.nombre} ID: ${perfil.id}")
+          }
+          is resultadoLogin.Error -> {
+              println("Error: ${resultado.mensaje}")
+          }
+          is resultadoLogin.Validando-> 
+      } //fin when 
+  }
+  
+}
