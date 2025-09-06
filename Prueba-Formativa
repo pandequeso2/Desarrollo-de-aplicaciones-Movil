@@ -5,63 +5,56 @@ open class Entrada(val id: Int, val precio: Int) {
         println("ID: $id | Precio: $precio")
     }
 }
-
 class EntradaNormal(id: Int, precio: Int) : Entrada(id, precio) {
     override fun mostrarDetalle() {
         println("-----Detalle-----")
         println("ID: $id | Precio: $precio")
     }
 }
-
 class EntradaVIP(id: Int, precio: Int, val beneficiosExtra: String) : Entrada(id, precio) {
     override fun mostrarDetalle() {
         println("-----Detalle-----")
         println("ID: $id | Precio: $precio | Beneficios: $beneficiosExtra")
     }
 }
-//Asincronia:
-sealed class EstadosValidacion(){
-    data class Valida(val detalleEntrada:String):EstadosValidacion()
-    data class NoValida(val mensaje:String):EstadosValidacion()
-    object Validando:EstadosValidacion()
+// Asincronia:
+sealed class EstadosValidacion() {
+    data class Valida(val detalleEntrada: String) : EstadosValidacion()
+    data class NoValida(val mensaje: String) : EstadosValidacion()
+    object Validando : EstadosValidacion()
+}
+// Funcion para manejar la respuesta, definida antes de ser llamada
+fun manejarRespuesta(resultado: EstadosValidacion) {
+    return when (resultado) {
+        is EstadosValidacion.Valida -> {
+            println(" Éxito: ${resultado.detalleEntrada}")
+        }
+        is EstadosValidacion.NoValida -> {
+            println("Incorrecto: ${resultado.mensaje}")
+        }
+        is EstadosValidacion.Validando -> {
+            println("⌛ Validando...")
+        }
+    }
 }
 
-suspend fun validarEntrada(id:Int, listaEntrada:list){
-    println("validando")
-    delay(2000L)
-    return if(id=1){
-        println("Exito...")
-        EstadosValidacion.Valida() 
-    }else{
+suspend fun validarEntrada(id: Int, listaEntradas: List<Entrada>): EstadosValidacion {
+    println("Validando ID: $id...")
+    delay(2000L) 
+    val entradaEncontrada = listaEntradas.find { it.id == id } //Busca que los id de la 
+    //posición it de la lista sean igual a el parametro id 
+    return if (entradaEncontrada != null) {
+        println("Éxito...")
+        EstadosValidacion.Valida("Entrada con ID ${entradaEncontrada.id} validada.")
+    } else {
         println("Credenciales Invalidas...")
-        EstadosValidacion.NoValida(mensaje:"Id incorrecta...")
-        EventosValidacion.Validando
+        EstadosValidacion.NoValida("ID incorrecta: no se encontró la entrada.")
     }
-}//fin funcion
-fun main()=RunBlocking {
+}
+
+fun main() = runBlocking {
     val listaEntradas = listOf(
         EntradaNormal(1, 10000),
         EntradaVIP(2, 12000, "Cercania al escenario"),
         EntradaNormal(3, 6000),
         EntradaVIP(4, 9000, "Bebidas Gratuitas")
-    )
-
-    listaEntradas.forEach { it.mostrarDetalle() }
-    //Ver cuantas entradas VIP se vendieron: 
-    
-    //Ver el total recaudad:
-    val cantVentas = listaEntradas.sumOf{it.precio}
-    println("Se recaudo $$cantVentas pesos")
-    
-    
-    //funcion manejo:
-    val resultado=validarEntrada(1, listaEntradas)
-    manejarRespuesta(resultado)
-    fun manejarRespuesta(resultado: EstadosValidacion){
-        return when(resultado){
-            is EstadosValidacion.Valida ->{println("Exito")}
-            is EstadosValidacion.NoValida ->{println(" Incorrecto")}
-            is EstadosValidacion.Validando -> {println("Validando...")}
-        }//fin when 
-    }
-}
